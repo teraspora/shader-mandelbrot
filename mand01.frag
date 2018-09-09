@@ -9,15 +9,15 @@ const vec4 cyan = vec4(0., 0.8, 1.0, 1.);
 const vec4 magenta = vec4(1.0, 0., 1.0, 1.);
 const vec4 gold = vec4(1.0, 0.84, 0.66, 1.);
 
-vec4[] cols = vec4[](black, cyan, black, gold, black, orange, black, cyan, black, orange, black);
+vec4[] cols = vec4[](cyan, black, gold, black, orange, black, cyan, black, orange, black);
 int numFirstColours = 12;
 bool modifiedColours = true;
 
 float aspectRatio;
-vec2 zMin;    // corners of the region of the Complex plane we're looking at
-vec2 zMax;
-vec2 zSpan;
-vec2 zIncr;
+highp vec2 zMin;    // corners of the region of the Complex plane we're looking at
+highp vec2 zMax;
+highp vec2 zSpan;
+highp vec2 zIncr;
 
 const float escapeRadius = 6.0;
 const float escapeRadius2 = 36.0;
@@ -40,15 +40,15 @@ vec2 pixelToXy(vec2 pixel, vec2 zMin, vec2 zMax) {
 // sure if the compiler will let me) or pass zMin & zMax by reference as an "inout" argument; so think I'll
 // just let scale() update the global variables...
 void scale(float factor) {
-    vec2 halfDiag = (zMax - zMin) / 2.0;
-    vec2 centre = zMin + halfDiag;
+    highp vec2 halfDiag = (zMax - zMin) / 2.0;
+    highp vec2 centre = zMin + halfDiag;
     zMin = centre - halfDiag / factor;
     zMax = centre + halfDiag / factor;
     updateGeometryVars();
 }
     
 
-vec2 f(vec2 z, vec2 w) {
+highp vec2 f(vec2 z, vec2 w) {
 
     return vec2(z.x * z.x - z.y * z.y, 2. * z.x * z.y) + w;
 }
@@ -108,6 +108,9 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     }
 
     vec4 col = mix(cols[firstColourIndex], cols[int(mod(float(firstColourIndex + 1), float(cols.length())))], interpolationFactor);
+    if (iTime > 60.) {
+        col -= vec4(0.1, 0.1, 0.1, 0.00) * (iTime - 60.0);  // fade when resolution lost
+        // hmmm, doesn't work!
+    }
     fragColor = col;
 }
-
